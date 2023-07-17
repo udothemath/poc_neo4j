@@ -83,9 +83,10 @@ if __name__ == "__main__":
     print(f"Check your current directory: {MAIN_PATH}")
     # step 1:
     # for i in [10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000]:
-    #     the_csv = FileInfo('sample', i, 5, DATA_PATH)
-    #     go = RunNeo4j(the_csv, the_logger)
-    #     go.main()
+    for i in [10, 100, 1_000]:
+        the_csv = FileInfo('sample', i, 5, DATA_PATH)
+        go = RunNeo4j(the_csv, the_logger)
+        go.main()
     print("---done in main---")
 # %%
 
