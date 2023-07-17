@@ -12,7 +12,8 @@ MAIN_PATH = "/Users/pro/Documents/poc_neo4j/"
 DATA_PATH = os.path.join(MAIN_PATH, 'data')
 # dir_path = os.path.abspath(os.getcwd()) + "/"
 LOG_FILENAME = f"log_{datetime.now():%Y%m%d}.log"
-the_logger = create_logger(LOG_FILENAME, 'log', MAIN_PATH, turn_on_console=True)
+the_logger = create_logger(
+    LOG_FILENAME, 'log', MAIN_PATH, turn_on_console=True)
 
 
 @dataclass
@@ -26,22 +27,23 @@ class FileInfo:
     def filename_path(self):
         return os.path.join(self.file_path, f'{self.file_prefix}_size{self.num_rows}.csv')
 
+
 class RunNeo4j:
-    def __init__(self,  file_info:FileInfo, logger):
+    def __init__(self,  file_info: FileInfo, logger):
         self.file_info = file_info
         self.logger = logger
         self.filename_path = self._check_file()
 
     @logger_decorator(the_logger)
-    def _check_file(self)  -> None:
-        filename_path  =  self.file_info.filename_path
+    def _check_file(self) -> None:
+        filename_path = self.file_info.filename_path
         self.logger.info(f"file: {filename_path}")
         self.logger.info(self.file_info)
         if os.path.isfile(filename_path):
             print("u already have csv file. Do nothing...")
         else:
             print("u don't have csv file. Create in progress...")
-            create_csv_file(self.file_info)   
+            create_csv_file(self.file_info)
         return filename_path
 
     @logger_decorator(the_logger)
@@ -78,10 +80,11 @@ class RunNeo4j:
             print(driver.query(cypher_count))
             print(driver.query(cypher_from_rel_to))
 
+
 if __name__ == "__main__":
     print("---run main---")
     print(f"Check your current directory: {MAIN_PATH}")
-    # step 1:
+    # Run for loop for data loading check
     # for i in [10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000]:
     for i in [10, 100, 1_000]:
         the_csv = FileInfo('sample', i, 5, DATA_PATH)
@@ -89,4 +92,3 @@ if __name__ == "__main__":
         go.main()
     print("---done in main---")
 # %%
-
