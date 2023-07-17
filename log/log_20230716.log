@@ -1,0 +1,20 @@
+2023-07-16 23:56:49 INFO You have created a customized logger.
+2023-07-16 23:56:49 INFO file: /Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data/sample_size10.csv
+2023-07-16 23:56:49 INFO FileInfo(file_prefix='sample', num_rows=10, type_size=5, file_path='/Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data')
+2023-07-16 23:56:49 INFO Function 'RunNeo4j._check_file' executed in 0.0004 seconds.
+2023-07-16 23:56:49 INFO Function 'RunNeo4j.main' executed in 0.0958 seconds.
+2023-07-16 23:56:49 INFO file: /Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data/sample_size100.csv
+2023-07-16 23:56:49 INFO FileInfo(file_prefix='sample', num_rows=100, type_size=5, file_path='/Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data')
+2023-07-16 23:56:49 INFO Function 'RunNeo4j._check_file' executed in 0.0009 seconds.
+2023-07-16 23:56:49 INFO Function 'RunNeo4j.main' executed in 0.0903 seconds.
+2023-07-16 23:56:49 INFO file: /Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data/sample_size1000.csv
+2023-07-16 23:56:49 INFO FileInfo(file_prefix='sample', num_rows=1000, type_size=5, file_path='/Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data')
+2023-07-16 23:56:49 INFO Function 'RunNeo4j._check_file' executed in 0.0009 seconds.
+2023-07-16 23:56:50 INFO Function 'RunNeo4j.main' executed in 1.3271 seconds.
+2023-07-16 23:56:50 INFO file: /Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data/sample_size10000.csv
+2023-07-16 23:56:50 INFO FileInfo(file_prefix='sample', num_rows=10000, type_size=5, file_path='/Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data')
+2023-07-16 23:56:50 INFO Function 'RunNeo4j._check_file' executed in 0.0888 seconds.
+2023-07-17 00:00:23 INFO Function 'RunNeo4j.main' executed in 212.7878 seconds.
+2023-07-17 00:00:23 INFO file: /Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data/sample_size100000.csv
+2023-07-17 00:00:23 INFO FileInfo(file_prefix='sample', num_rows=100000, type_size=5, file_path='/Users/pro/Documents/ml_with_graph_algorithms/nice_graph/neo4j_go/data')
+2023-07-17 00:00:24 INFO Function 'RunNeo4j._check_file' executed in 0.9776 seconds.
