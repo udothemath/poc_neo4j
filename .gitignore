@@ -1,3 +1,4 @@
+log/*
 archive/*
 data/*
 */*/__pycache__/*
