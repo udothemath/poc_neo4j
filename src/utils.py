@@ -68,6 +68,9 @@ def create_csv_file(file_info):
     num_rows = file_info.num_rows 
     type_size = file_info.type_size
     file_path = file_info.file_path
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+        print(f"You have created folder: {file_path}")
     # Define column names
     fieldnames = ['from', 'to', 'from_type', 'to_type', 'relation']
     rand_size = int(num_rows/3)

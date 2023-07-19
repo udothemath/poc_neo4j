@@ -8,7 +8,8 @@ from src.cypher_code import (cypher_clean, cypher_conf)
 from datetime import datetime
 
 PATH_BOLT = "bolt://localhost:7687"
-MAIN_PATH = "/Users/pro/Documents/poc_neo4j/"
+# MAIN_PATH = "/Users/pro/Documents/poc_neo4j/" ## pro
+MAIN_PATH = "/home/jovyan/poc_neo4j/"  # aicloud
 DATA_PATH = os.path.join(MAIN_PATH, 'data')
 # dir_path = os.path.abspath(os.getcwd()) + "/"
 LOG_FILENAME = f"log_{datetime.now():%Y%m%d}.log"
@@ -63,7 +64,9 @@ class RunNeo4j:
         cypher_index2 = """
         create index IF NOT EXISTS for (n:TO_ID) on (n.name,n.type);
         """
-        cypher_index3 = " create index abc for ()-[r:Relation]-() on (r.type);"
+        cypher_index3 = """
+        create index IF NOT EXISTS for ()-[r:Relation]-() on (r.type);
+        """
 
         cypher_count = f'''
             LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
@@ -88,7 +91,7 @@ class RunNeo4j:
             LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
             match (from_id:FROM_ID {{name: row.from, type: row.from_type}})
             match (to_id:TO_ID {{name: row.to, type: row.to_type}})
-            MERGE (from_id)-[rel:relation {{type:row.relation}}]->(to_id)
+            MERGE (from_id)-[rel:Relation {{type:row.relation}}]->(to_id)
             on create set rel.type= row.relation
             RETURN count(rel);
         '''
@@ -106,7 +109,7 @@ class RunNeo4j:
                        cypher_constraint_to,
                        cypher_index1,
                        cypher_index2,
-                       #    cypher_index3,
+                       cypher_index3,
                        cypher_conf,
                        cypher_count,
                        cypher_from_rel_to1,
