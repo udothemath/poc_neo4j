@@ -72,7 +72,7 @@ def create_csv_file(file_info):
         os.makedirs(file_path)
         print(f"You have created folder: {file_path}")
     # Define column names
-    fieldnames = ['from', 'to', 'from_type', 'to_type', 'relation']
+    fieldnames = ['from', 'to', 'from_type', 'to_type', 'link_type']
     rand_size = int(num_rows/3)
     paddle_zero_size = int(math.log(num_rows, 10))+1
 
@@ -95,7 +95,7 @@ def create_csv_file(file_info):
                      'to': f'{to_info[0]}_{rand_value_to:0{paddle_zero_size}}', 
                      'from_type': from_info[1], 
                      'to_type': to_info[1], 
-                     'relation': relation})
+                     'link_type': relation})
     
     # Write data to CSV file
     with open(file_info.filename_path, mode='w', newline='') as csv_file:
