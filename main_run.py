@@ -10,13 +10,14 @@ import logging
 
 PATH_BOLT = "bolt://localhost:7687"
 # MAIN_PATH = "/Users/pro/Documents/poc_neo4j/" ## pro
-MAIN_PATH = "/home/jovyan/poc_neo4j/"  # aicloud
+# MAIN_PATH = "/home/jovyan/poc_neo4j/"  # aicloud
+MAIN_PATH = os.path.abspath(os.getcwd()) + "/"
 DATA_PATH = os.path.join(MAIN_PATH, 'data')
-# dir_path = os.path.abspath(os.getcwd()) + "/"
 LOG_FILENAME = f"log_{datetime.now():%Y%m%d}.log"
 the_logger = create_logger(
     LOG_FILENAME, 'log', MAIN_PATH, turn_on_console=False)
 
+print(MAIN_PATH)
 
 @dataclass
 class FileInfo:
@@ -140,33 +141,28 @@ class RunNeo4jFile:
                     raise ValueError("something goes wrong...")
 
 
-DATA_PATH = "/home/jovyan/socialnetwork_info_TFS/go_neo4j/data"
-FILE_CSV = "a_20230617_all_links_size2000000.csv"
+def run_toy_data(data_path: str):
+    the_csv = FileInfo('sample', 10, 5, data_path)
+    b = RunNeo4jFile(the_csv, the_logger)
+    b.main()
 
-test_filename = os.path.join(DATA_PATH, FILE_CSV)
-a = RunNeo4jFile(test_filename, the_logger)
-a.main()
 
-# the_csv = FileInfo('sample', 100, 5, DATA_PATH)
-# b = RunNeo4jFile(the_csv, the_logger)
-# b.main()
+def run_real_data(data_path: str, file_csv: str):
+    the_filename = os.path.join(data_path, file_csv)
+    a = RunNeo4jFile(the_filename, the_logger)
+    a.main()
 
-# x = isinstance(5, int)
-# print(x)
 
-# y = isinstance(the_csv, FileInfo)
-# print(y)
+if __name__ == "__main__":
+    print("---run main---")
+    print(f"Check your current directory: {MAIN_PATH}")
+    # DATA_PATH = "/home/jovyan/socialnetwork_info_TFS/poc_neo4j/data"
+    # run_toy_data(data_path = DATA_PATH)
 
-# %%
+    DATA_PATH = "/home/jovyan/socialnetwork_info_TFS/go_neo4j/data"
+    run_real_data(data_path = DATA_PATH, file_csv = "20230720_all_links.csv")
+    print("---done in main---")
 
-# if __name__ == "__main__":
-#     print("---run main---")
-#     print(f"Check your current directory: {MAIN_PATH}")
-#     # Run for loop for data loading check
-#     # for i in [10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000]:
-#     # for i in [10]:
-#     #     the_csv = FileInfo('sample', i, 5, DATA_PATH)
-#     #     go = RunNeo4j(the_csv, the_logger)
-#     #     go.main()
-#     print("---done in main---")
-# %%
+
+
+
