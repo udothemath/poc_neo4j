@@ -1,4 +1,4 @@
-# go for neo4j demo
+# Instruction
 ## off-line
 1. Create virtual environment
 	- ```$ python -m venv <name_of_venv_with_path> ```
