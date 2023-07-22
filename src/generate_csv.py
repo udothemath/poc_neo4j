@@ -1,4 +1,3 @@
-from easy_to_sql.sql_tools import SQLTools
 from dataclasses import dataclass
 import os
 
@@ -22,11 +21,13 @@ class FileInfoFromDB:
             return os.path.join(self.save_dir,
                                 f"{self.save_file_prefix}_{self.table_name}.csv")
 
+
 class GenCSVfromDB:
     def __init__(self, file_info: FileInfoFromDB, logger):
         '''
             Generate csv from db using easy_to_sql
         '''
+        from easy_to_sql.sql_tools import SQLTools
         self._proj_name = 'socialnetwork_info'
         self._file_info = file_info
         self._logger = logger
