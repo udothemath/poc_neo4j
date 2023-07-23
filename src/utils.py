@@ -17,23 +17,23 @@ def create_logger(log_filename: str, log_folder: str, dir_path: str, turn_on_con
     my_logger.setLevel(logging.INFO)
 
     # mkdir
-    if not os.path.exists(dir_path + log_folder):
-        os.makedirs(dir_path + log_folder)
+    dir_log_path = os.path.join(dir_path, log_folder)
+    if not os.path.exists(dir_log_path):
+        os.makedirs(dir_log_path)
 
+    file_dir_log_path = os.path.join(dir_log_path, log_filename)
     # file handler
     fileHandler = logging.FileHandler(
-        dir_path + log_folder + "/" + log_filename, "a+", "utf-8"
+        file_dir_log_path, "a+", "utf-8"
     )
     fileHandler.setFormatter(formatter)
     my_logger.addHandler(fileHandler)
-
     # console handler
     if turn_on_console:
         consoleHandler = logging.StreamHandler()
         consoleHandler.setLevel(logging.DEBUG)
         consoleHandler.setFormatter(formatter)
         my_logger.addHandler(consoleHandler)
-    my_logger.info("You have created a customized logger.")
     return my_logger
 
 
