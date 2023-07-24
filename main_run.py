@@ -11,10 +11,10 @@ from src.generate_csv import FileInfoFromDB, GenCSVfromDB
 # pd.set_option('display.max_columns', 9999)
 
 PATH_BOLT = "bolt://localhost:7687"
-# MAIN_PATH = "/Users/pro/Documents/poc_neo4j/" ## pro
-# MAIN_PATH = "/home/jovyan/poc_neo4j/"  # aicloud
 MAIN_PATH = os.path.abspath(os.getcwd()) + "/"
 DATA_PATH = os.path.join(MAIN_PATH, 'data')
+if not os.path.exists(DATA_PATH):
+    os.makedirs(DATA_PATH)
 LOG_FILENAME = f"log_{datetime.now():%Y%m%d}.log"
 THE_LOGGER = create_logger(
     LOG_FILENAME, 'log', MAIN_PATH, turn_on_console=True)
@@ -25,20 +25,34 @@ class FileInfo:
     file_prefix: str
     num_rows: int
     type_size: int
-    file_path: str
+    file_path: str = DATA_PATH
 
     @property
     def filename_path(self):
         return os.path.join(self.file_path, f'{self.file_prefix}_size{self.num_rows}.csv')
 
 
+class FileInfoSelf:
+    def __init__(self, file_prefix, num_rows: str, type_size: int, data_path: str):
+        self.file_prefix = file_prefix
+        self.num_rows = num_rows
+        self.type_size = type_size
+        self.data_path = data_path
+        self.file_path = self.filename_path
+
+    @property
+    def filename_path(self):
+        return os.path.join(self.data_path, f'{self.file_prefix}_size{self.num_rows}.csv')
+
+
 class RunNeo4jFile:
-    def __init__(self, file_source, logger: logging):
-        self.logger = logger
+    logger = THE_LOGGER
+
+    def __init__(self, file_source):
         self.file_source = file_source
         self.filename_path = self._check_file()
 
-    @logger_decorator(THE_LOGGER)
+    @logger_decorator(logger)
     def _check_file(self) -> None:
         if isinstance(self.file_source, str):
             if os.path.isfile(self.file_source):
@@ -60,13 +74,13 @@ class RunNeo4jFile:
         else:
             raise ValueError("Check your data...")
 
-    @logger_decorator(THE_LOGGER)
+    @logger_decorator(logger)
     def main(self):
         the_file = self.filename_path
         print(" ------------- ")
         # print(split_large_file(the_file,5000))
-        cypher_constraint_id_from = '''
-            CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT m.from IS UNIQUE
+        cypher_constraint_id_from_to = '''
+            CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT (m.from, m.to) IS UNIQUE
         '''
         cypher_constraint_id_to = '''
             CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT m.to IS UNIQUE
@@ -117,10 +131,25 @@ class RunNeo4jFile:
             MATCH self_loop = (m)-[r]-(n) where m.name = n.name return count(r);
         '''
 
+        cypher_apoc_node_label = '''
+        // BY id type
+            MATCH (n:ID)
+            WITH DISTINCT n.type AS id_type, collect(DISTINCT n) AS persons
+            CALL apoc.create.addLabels(persons, [apoc.text.upperCamelCase(id_type)]) YIELD node
+            RETURN count(node)
+        '''
+
+        cypher_apoc_rel_type = '''
+            MATCH ()-[rel:Relation]->()
+            CALL apoc.refactor.setType(rel, rel.type)
+            YIELD input, output
+            RETURN count(input)
+        '''
+
         cypher_label_mark = """
             CALL apoc.periodic.iterate(
-            "MATCH (p) where p:FROM_ID or p:TO_ID RETURN p",
-            "set p:ID",
+            "MATCH (p:ID) RETURN p",
+            "SET p:ID",
             {batchSize: 5000}
             )
             YIELD batch, operations
@@ -129,8 +158,8 @@ class RunNeo4jFile:
         cypher_list = [
             cypher_conf,
             cypher_clean,
-            cypher_constraint_id_from,
-            cypher_constraint_id_to,
+            cypher_constraint_id_from_to,
+            # cypher_constraint_id_to,
             # cypher_constraint_from,
             # cypher_constraint_to,
             cypher_index1,
@@ -140,8 +169,10 @@ class RunNeo4jFile:
             cypher_node_to,
             cypher_relation,
             cypher_remove_self_loop,
-            cypher_count_self_loop
-            #    cypher_label_mark
+            cypher_count_self_loop,
+            cypher_apoc_node_label,
+            # cypher_apoc_rel_type,
+            # cypher_label_mark
         ]
         total_n_of_cypher = len(cypher_list)
         with Neo4jConnection(uri=PATH_BOLT, user=NEO4J_USER, pwd=NEO4J_PASSWORD) as driver:
@@ -155,7 +186,7 @@ class RunNeo4jFile:
                     raise ValueError("something goes wrong...")
 
 
-def create_csv_from_db(file_info_fromDB: FileInfoFromDB, logger=THE_LOGGER):
+def create_csv_from_db(file_info_fromDB: FileInfoFromDB, logger=logging.getLogger(__name__)):
     """
     Create csv file and save to desired directory
     Args:
@@ -171,36 +202,29 @@ def create_csv_from_db(file_info_fromDB: FileInfoFromDB, logger=THE_LOGGER):
         print("file doesn't exists. Creating file...")
         GenCSVfromDB(file_info_fromDB, logger=logger).create_csv_from_df()
         print(f"file is ready. {file_with_path}")
+    return file_with_path
 
 
-def run_toy_data(data_path: str, logger: logging):
-    the_csv = FileInfo('sample', 100, 5, data_path)
-    b = RunNeo4jFile(the_csv, logger)
-    b.main()
-
-
-def run_real_data(data_path: str, file_csv: str, logger: logging):
+def run_real_data(data_path: str, file_csv: str):
     the_filename = os.path.join(data_path, file_csv)
-    a = RunNeo4jFile(the_filename, logger)
+    a = RunNeo4jFile(the_filename)
     a.main()
 
 
 if __name__ == "__main__":
     print("---run main---")
     print(f"Check your current directory: {MAIN_PATH}")
+    print(f"Check your data directory: {DATA_PATH}")
 
-    # DATA_PATH = "/home/jovyan/socialnetwork_info_TFS/poc_neo4j/data"
-    # run_toy_data(data_path=DATA_PATH, logger=THE_LOGGER)
+    # generate data
+    data_demo = FileInfo('demo', 1_000_000, 5, file_path=DATA_PATH)
+    file_csv = create_csv_file(data_demo)
+    RunNeo4jFile(file_csv).main()
 
     # generate data from feature DB
-    # DATA_PATH = "/home/jovyan/socialnetwork_info_TFS/poc_neo4j/data"
-    # file_all_links = FileInfoFromDB(table_name="all_links", save_dir=DATA_PATH,
+    # data_from_db = FileInfoFromDB(table_name="all_links", save_dir=DATA_PATH,
     #                   save_file_prefix="20230721_v2", size_limit=40)
-    # create_csv_from_db(file_all_links)
+    # file_csv = create_csv_from_db(data_from_db)
+    # RunNeo4jFile(file_csv).main()
 
-    # FILE_CSV = "20230720_all_links_size30.csv"
-    # # FILE_CSV = "20230720_v2_all_links.csv"
-    # run_real_data(data_path=DATA_PATH,
-    #               file_csv=FILE_CSV,
-    #               logger=THE_LOGGER)
     print("---done in main---")
