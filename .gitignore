@@ -1,6 +1,6 @@
 *.code-workspace
 log/*
-archive/*
+## archive/*
 data/*
 */*/__pycache__/*
 */__pycache__/*
