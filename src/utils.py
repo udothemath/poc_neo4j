@@ -111,3 +111,44 @@ def create_csv_file(file_info):
         return filename_path
     except:
         raise FileNotFoundError("File not found...")
+
+
+def create_csv_file_property(property_info):
+    file_prefix = property_info.file_prefix
+    num_rows = property_info.num_rows
+    file_path = property_info.file_path
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+        print(f"You have created folder: {file_path}")
+    # Define column names
+    fieldnames = ['node_id', 'name', 'gender', 'address']
+    rand_size = int(num_rows/3)
+    paddle_zero_size = int(math.log(num_rows, 10))+1
+
+    # Generate data for each row
+    rows = []
+    for i in range(num_rows):
+        rand_value_from = random.randint(1, rand_size)
+
+        # from_info = random.choice([('a', 'account'),
+        #                            ('c', 'company'),
+        #                            ('u', 'user')
+        #                            ])
+        gender_type = random.choice(['M', 'F'])
+
+        rows.append({'node_id': f'a_{rand_value_from:0{paddle_zero_size}}',
+                     'name': f'name_{rand_value_from:0{paddle_zero_size}}',
+                     'gender': gender_type,
+                     'address': f'address_{i:0{paddle_zero_size}}',
+                    })
+
+    # Write data to CSV file
+    try:
+        filename_path = property_info.filename_path
+        with open(filename_path, mode='w', newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+        return filename_path
+    except:
+        raise FileNotFoundError("File not found...")

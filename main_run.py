@@ -1,13 +1,15 @@
 # %%
 import os
 from dataclasses import dataclass
-from src.utils import create_csv_file, logger_decorator, create_logger, log_info
+from src.utils import (create_csv_file, logger_decorator,
+                       create_logger, log_info, create_csv_file_property)
 from src.neo4j_conn import Neo4jConnection
 from setting import NEO4J_PASSWORD, NEO4J_USER
 from src.cypher_code import (cypher_clean, cypher_conf)
 from datetime import datetime
 import logging
 from src.generate_csv import FileInfoFromDB, GenCSVfromDB
+from src.cypher_func import cypher_node_code, cypher_property_code
 # pd.set_option('display.max_columns', 9999)
 
 PATH_BOLT = "bolt://localhost:7687"
@@ -32,17 +34,15 @@ class FileInfo:
         return os.path.join(self.file_path, f'{self.file_prefix}_size{self.num_rows}.csv')
 
 
-class FileInfoSelf:
-    def __init__(self, file_prefix, num_rows: str, type_size: int, data_path: str):
-        self.file_prefix = file_prefix
-        self.num_rows = num_rows
-        self.type_size = type_size
-        self.data_path = data_path
-        self.file_path = self.filename_path
+@dataclass
+class PropertyInfo:
+    file_prefix: str
+    num_rows: int
+    file_path: str = DATA_PATH
 
     @property
     def filename_path(self):
-        return os.path.join(self.data_path, f'{self.file_prefix}_size{self.num_rows}.csv')
+        return os.path.join(self.file_path, f'{self.file_prefix}_size{self.num_rows}.csv')
 
 
 class RunNeo4jFile:
@@ -75,108 +75,13 @@ class RunNeo4jFile:
             raise ValueError("Check your data...")
 
     @logger_decorator(logger)
-    def main(self):
+    def neo4j_execute_cypher(self, func):
         the_file = self.filename_path
+        cypher_node_list = func(the_file)
         print(" ------------- ")
-        # print(split_large_file(the_file,5000))
-        cypher_constraint_id_from_to = '''
-            CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT (m.from, m.to) IS UNIQUE
-        '''
-        cypher_constraint_id_to = '''
-            CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT m.to IS UNIQUE
-        '''
-        cypher_constraint_from = '''
-            CREATE CONSTRAINT IF NOT EXISTS ON (m:FROM_ID) ASSERT m.from IS UNIQUE
-        '''
-        cypher_constraint_to = '''
-            CREATE CONSTRAINT IF NOT EXISTS ON (m:TO_ID) ASSERT m.to IS UNIQUE
-        '''
-        cypher_index1 = """
-        create index IF NOT EXISTS for (n:ID) on (n.name,n.type);
-        """
-        cypher_index2 = """
-        create index IF NOT EXISTS for ()-[r:Relation]-() on (r.name,r.type);
-        """
-        cypher_count = f'''
-            LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
-            RETURN count(row);
-        '''
-        cypher_node_from = f'''
-            USING PERIODIC COMMIT 5000
-            LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
-            MERGE (from_id:ID {{name: row.from, type: row.from_type}})
-            on create set from_id.name=row.from,from_id.type=row.from_type
-            RETURN count(from_id);
-        '''
-        cypher_node_to = f'''
-            USING PERIODIC COMMIT 5000
-            LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
-            MERGE (to_id:ID {{name: row.to, type: row.to_type}})
-            on create set to_id.name=row.to,to_id.type=row.to_type
-            RETURN count(to_id);
-        '''
-        cypher_relation = f'''
-            USING PERIODIC COMMIT 5000
-            LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
-            match (from_id:ID {{name: row.from, type: row.from_type}})
-            match (to_id:ID {{name: row.to, type: row.to_type}})
-            MERGE (from_id)-[rel:Relation {{type:row.link_type}}]->(to_id)
-            on create set rel.type= row.link_type
-            RETURN count(rel);
-        '''
-        cypher_remove_self_loop = '''
-            MATCH self_loop = (m)-[r]-(n) where m.name = n.name delete r;
-        '''
-        cypher_count_self_loop = '''
-            MATCH self_loop = (m)-[r]-(n) where m.name = n.name return count(r);
-        '''
-
-        cypher_apoc_node_label = '''
-        // BY id type
-            MATCH (n:ID)
-            WITH DISTINCT n.type AS id_type, collect(DISTINCT n) AS persons
-            CALL apoc.create.addLabels(persons, [apoc.text.upperCamelCase(id_type)]) YIELD node
-            RETURN count(node)
-        '''
-
-        cypher_apoc_rel_type = '''
-            MATCH ()-[rel:Relation]->()
-            CALL apoc.refactor.setType(rel, rel.type)
-            YIELD input, output
-            RETURN count(input)
-        '''
-
-        cypher_label_mark = """
-            CALL apoc.periodic.iterate(
-            "MATCH (p:ID) RETURN p",
-            "SET p:ID",
-            {batchSize: 5000}
-            )
-            YIELD batch, operations
-            return batch,operations
-        """
-        cypher_list = [
-            cypher_conf,
-            cypher_clean,
-            cypher_constraint_id_from_to,
-            # cypher_constraint_id_to,
-            # cypher_constraint_from,
-            # cypher_constraint_to,
-            cypher_index1,
-            cypher_index2,
-            cypher_count,
-            cypher_node_from,
-            cypher_node_to,
-            cypher_relation,
-            cypher_remove_self_loop,
-            cypher_count_self_loop,
-            cypher_apoc_node_label,
-            # cypher_apoc_rel_type,
-            # cypher_label_mark
-        ]
-        total_n_of_cypher = len(cypher_list)
+        total_n_of_cypher = len(cypher_node_list)
         with Neo4jConnection(uri=PATH_BOLT, user=NEO4J_USER, pwd=NEO4J_PASSWORD) as driver:
-            for i, run_cypher in enumerate(cypher_list, start=1):
+            for i, run_cypher in enumerate(cypher_node_list, start=1):
                 print(f"Current cypher: {i:02}/{total_n_of_cypher}")
                 print(f"Cypher code: {run_cypher}")
                 try:
@@ -200,15 +105,12 @@ def create_csv_from_db(file_info_fromDB: FileInfoFromDB, logger=logging.getLogge
         print(f"u already have file: {file_with_path}")
     else:
         print("file doesn't exists. Creating file...")
-        GenCSVfromDB(file_info_fromDB, logger=logger).create_csv_from_df()
-        print(f"file is ready. {file_with_path}")
+        try:
+            GenCSVfromDB(file_info_fromDB, logger=logger).create_csv_from_df()
+            print(f"file is ready. {file_with_path}")
+        except:
+            raise ValueError("Cannot generate csv from DB")
     return file_with_path
-
-
-def run_real_data(data_path: str, file_csv: str):
-    the_filename = os.path.join(data_path, file_csv)
-    a = RunNeo4jFile(the_filename)
-    a.main()
 
 
 if __name__ == "__main__":
@@ -217,14 +119,31 @@ if __name__ == "__main__":
     print(f"Check your data directory: {DATA_PATH}")
 
     # generate data
-    data_demo = FileInfo('demo', 1_000_000, 5, file_path=DATA_PATH)
-    file_csv = create_csv_file(data_demo)
-    RunNeo4jFile(file_csv).main()
+    data_row_size = 10_000
+    data_node = FileInfo('demo', data_row_size, 5, file_path=DATA_PATH)
+    file_csv_node = create_csv_file(data_node)
+
+    data_property = PropertyInfo(
+        'property', data_row_size, file_path=DATA_PATH)
+    file_csv_property = create_csv_file_property(data_property)
+    print(f"node file: {file_csv_node}")
+    print(f"property file: {file_csv_property}")
+
+    RunNeo4jFile(file_csv_node).neo4j_execute_cypher(cypher_node_code)
+    RunNeo4jFile(file_csv_property).neo4j_execute_cypher(cypher_property_code)
+
 
     # generate data from feature DB
-    # data_from_db = FileInfoFromDB(table_name="all_links", save_dir=DATA_PATH,
-    #                   save_file_prefix="20230721_v2", size_limit=40)
+    # data_from_db = FileInfoFromDB(table_name="l3_node_person", save_dir=DATA_PATH,
+    #                   save_file_prefix="20230724_v1", size_limit=1_000)
     # file_csv = create_csv_from_db(data_from_db)
     # RunNeo4jFile(file_csv).main()
+
+    # generate data for property
+    # data_from_db_property = FileInfoFromDB(table_name="l3_node_person", save_dir=DATA_PATH,
+    #                   save_file_prefix="20230724_v1", size_limit=1_000)
+    # file_csv_property = create_csv_from_db(data_from_db_property)
+    # # file_csv = '/home/jovyan/socialnetwork_info_TFS/poc_neo4j/data/20230724_v1_l3_node_person_size10.csv'
+    # RunNeo4jFile(file_csv_property).add_property(file_property=file_csv_property)
 
     print("---done in main---")

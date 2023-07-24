@@ -41,20 +41,22 @@ class GenCSVfromDB:
         select_sql = f'''
         SELECT *
         FROM {self._proj_name}.{self._file_info.table_name}
-        WHERE from_type = 'person'
-        AND to_type = 'person'
-        AND link_type NOT IN ('has_grandparents_in_law', 'has_maternal_grandparents', 'has_parents_in_law', 'has_paternal_grandparents')
+        -- WHERE from_type = 'person'
+        -- AND to_type = 'person'
+        -- AND link_type NOT IN ('has_grandparents_in_law', 'has_maternal_grandparents', 'has_parents_in_law', 'has_paternal_grandparents')
         '''
         if self._file_info.size_limit:
             size_limit = self._file_info.size_limit
-            select_sql = select_sql + f'LIMIT {size_limit}'
-
-        result = self._sq.query2dataframe(
-            select_sql=select_sql,
-            db_id='feature',
-            output_type='pandas'
-        )
-        return result
+            select_sql = select_sql + f' LIMIT {size_limit}'
+        try:
+            result = self._sq.query2dataframe(
+                select_sql=select_sql,
+                db_id='feature',
+                output_type='pandas'
+            )
+            return result
+        except:
+            raise ValueError("Cannot access db")
 
     def create_csv_from_df(self):
         '''
