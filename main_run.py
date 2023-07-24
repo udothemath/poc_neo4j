@@ -1,13 +1,11 @@
 # %%
 import os
-import logging
-from dataclasses import dataclass
 from datetime import datetime
 from setting import NEO4J_PASSWORD, NEO4J_USER
 from src.utils import (logger_decorator, create_logger, log_info)
 from src.neo4j_conn import Neo4jConnection
 from src.cypher_code import (cypher_clean, cypher_conf)
-from src.generate_csv import create_csv_file_node, create_csv_file_property, FileInfo, FileInfoFromDB, GenCSVfromDB
+from src.generate_csv import create_csv_file_node, create_csv_file_property, FileInfo, FileInfoFromDB, GenCSVfromDB, create_csv_from_db
 from src.cypher_func import cypher_node_code, cypher_property_code
 # pd.set_option('display.max_columns', 9999)
 
@@ -52,28 +50,6 @@ class RunNeo4jCSVPath:
                     raise ValueError("Cannot run cypher query...")
 
 
-def create_csv_from_db(file_info_fromDB: FileInfoFromDB, logger=logging.getLogger(__name__)):
-    """
-    Create csv file and save to desired directory
-    Args:
-        table_info (dataclass): table info
-        logger (str): Logging
-    Returns:
-        None
-    """
-    file_with_path = file_info_fromDB.get_path
-    if os.path.isfile(file_with_path):
-        print(f"u already have file: {file_with_path}")
-    else:
-        print("file doesn't exists. Creating file...")
-        try:
-            GenCSVfromDB(file_info_fromDB, logger=logger).create_csv_from_df()
-            print(f"file is ready. {file_with_path}")
-        except:
-            raise ValueError("Cannot generate csv from DB")
-    return file_with_path
-
-
 if __name__ == "__main__":
     print("---run main---")
     print(f"Check your current directory: {MAIN_PATH}")
@@ -81,7 +57,7 @@ if __name__ == "__main__":
     print(f"Check your bolt path for neo4j: {PATH_BOLT}")
 
     # generate data
-    data_row_size = 100_000
+    data_row_size = 1_000
     data_node = FileInfo('demo', data_row_size, file_path=DATA_PATH)
     file_csv_node = create_csv_file_node(data_node)
 

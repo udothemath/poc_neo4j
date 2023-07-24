@@ -166,3 +166,25 @@ def create_csv_file_property(file_info: FileInfo):
         return filename_path
     except:
         raise FileNotFoundError("File not found...")
+
+
+def create_csv_from_db(file_info_fromDB: FileInfoFromDB):
+    """
+    Create csv file and save to desired directory
+    Args:
+        table_info (dataclass): table info
+        logger (str): Logging
+    Returns:
+        None
+    """
+    file_with_path = file_info_fromDB.get_path
+    if os.path.isfile(file_with_path):
+        print(f"u already have file: {file_with_path}")
+    else:
+        print("file doesn't exists. Creating file...")
+        try:
+            GenCSVfromDB(file_info_fromDB, logger=logger).create_csv_from_df()
+            print(f"file is ready. {file_with_path}")
+        except:
+            raise ValueError("Cannot generate csv from DB")
+    return file_with_path
