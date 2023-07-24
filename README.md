@@ -2,7 +2,8 @@
 
 ## Commonly use cypher syntax
 
-- Count number of node - match (m) return count(m);
+- Count number of node
+  - match (m) return count(m);
 - Show a few nodes
   - match (m) return (m) limit 50;
 - Count number of relation
