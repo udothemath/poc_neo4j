@@ -1,0 +1,138 @@
+## Last Update: 2023/6/27
+alias gf8='git add .; git commit -m "fix: flake8 error"; git push'
+alias gtt='_git_commit_test(){ git add .; git commit -m "feat: test aicloud airflow $1"; git push; echo "U have committed tag $1"; }; _git_commit_test'
+alias aidag='_aidag(){ git tag aicloud_$1; git push origin aicloud_$1; echo "You have submitted AIRFLOW task on aicloud with tag: $1"; }; _aidag'
+alias ggg='_ggg(){ git add .; git commit -m "feat: test aicloud airflow $1"; git push; sleep .05; git tag aicloud_$1; sleep .05; git push origin aicloud_$1; echo "U have added commit and git tag version $1"; }; _ggg'
+alias ali='_alias(){ alias | grep "$1"; }; _alias'
+alias pf='_pf(){ pip freeze | grep "$1"; }; _pf'
+alias pj='_pj(){ echo "search task"; ps -eaf | grep "$1"; }; _pj'
+alias kj='kill -9 '
+
+
+# ## example:
+# ## step1: $ python3 -m venv /home/jovyan/eb-customer-embedding/a_env/[proj_abc]
+# ## step2: $ source /home/jovyan/eb-customer-embedding/a_env/[proj_abc]/bin/activate;
+alias check_image='cat /etc/bash.bashrc'
+
+alias make_venv='python3 -m venv '
+
+alias via='vi ~/.bash_alias'
+
+alias check_redis='redis-cli -h 127.0.0.1 -p 6379 PING'
+
+alias gen_config1='pwd; python -c "from mlaas_tools import config_build; config_build.config_set()"; '
+alias gen_config2='pwd; python -c "from mlaas_tools2 import config_build; config_build.config_set()"; '
+
+alias pv='_pv(){ python3 -m venv ~/the_venv/"$1"; }; _pv'
+alias a8='apirun --host=127.0.0.1 --port=8001 --reload &'
+
+alias api_port='_apirun() { apirun --host=127.0.0.1 --port=$1 --reload &}; _apirun'
+
+## refresh .bash_aliases setting
+alias so='source  ~/.bash_alias; echo "u just refresh your alias setting"'
+
+## go directory
+alias goso='cd /home/jovyan/socialnetwork_info_TFS/go_neo4j; pwd;'
+alias goavm='cd ~/pl_automated_valuation_TFS; pwd;'
+alias gosinyi='cd ~/pl_avm_sinyi_cooperation_TFS; pwd;'
+alias gosmart='cd ~/df_smart_channel_TFS; pwd;'
+alias goerc='cd /home/jovyan/pr-erc-risk-model/; pwd;'
+alias goneo4j='cd /home/jovyan/eb-customer-embedding/ml_with_graph_algorithms/nice_graph; pwd;'
+alias gograph='cd /home/jovyan/ml_with_graph_algorithms/nice_graph/neo4j_go; pwd;'
+alias proj_eclicks='source /home/jovyan/the_venv/proj_eclicks/bin/activate; python -c "import     sys; print(sys.prefix)"'
+alias proj_models='source /home/jovyan/the_venv/proj_models/bin/activate; python -c "import sys; print(sys.prefix)"'
+alias proj_poc='source /home/jovyan/eb-customer-embedding/a_env/proj_poc/bin/activate; python -c "import sys; print(sys.prefix)"'
+alias proj_graph='source /home/jovyan/ml_with_graph_algorithms/nice_graph/neo4j_go/venv/proj_graph/bin/activate; python -c "import sys; print(sys.prefix)"'
+alias vt190='source /home/jovyan/eb-customer-embedding/a_env/torch_190_v2/bin/activate; python -c "import sys; print(sys.prefix)"'
+#alias proj_demo='source /home/jovyan/eb-customer-embedding/a_env/proj_demo/bin/activate; python -c "import sys; print(sys.prefix)"    '
+#alias proj_smart='source /home/jovyan/eb-customer-embedding/a_env/proj_smart/bin/activate; python -c "import sys; print(sys.prefix)"'
+alias proj_neo4j='source /home/jovyan/eb-customer-embedding/a_env/proj_neo4j/bin/activate; python -c "import sys; print(sys.prefix)"'
+#alias proj_erc='source /home/jovyan/eb-customer-embedding/a_env/proj_erc/bin/activate; python -c "import sys; print(sys.prefix)"'
+#alias proj_sinyi2='source /home/jovyan/eb-customer-embedding/a_env/proj_sinyi2/bin/activate; python -c "import sys; print(sys.prefix)"'
+#alias proj_sinyi='source /home/jovyan/eb-customer-embedding/a_env/proj_sinyi/bin/activate; python -c "import sys; print(sys.prefix)"'
+#alias proj_sc='source /home/jovyan/eb-customer-embedding/a_env/proj_sc/bin/activate; python -c "import sys; print(sys.prefix)"'
+alias proj_avm='source /home/jovyan/eb-customer-embedding/a_env/proj_avm/bin/activate; python -c "import sys; print(sys.prefix)"'
+#alias non_torch='source /home/jovyan/eb-customer-embedding/a_env/non_torch/bin/activate; python -c "import sys; print(sys.prefix)"'
+#alias proj_default='source /home/jovyan/eb-customer-embedding/a_env/proj_default/bin/activate; python -c "import sys; print(sys.prefix)"'
+alias proj_poi='source /home/jovyan/eb-customer-embedding/a_env/proj_poi/bin/activate; python -c "import sys; print(sys.prefix)"'
+alias proj_social='source /home/jovyan/the_venv/proj_social/bin/activate; python -c "import sys; print(sys.prefix)"'
+# prune
+alias gprune='git remote prune origin'
+
+
+## go to carrefour directory
+alias gca='cd /home/jovyan/eb_carrefour_analysis_TFS; pwd;'
+
+## go to ml directory
+alias gml='cd /home/jovyan/eb-customer-embedding/ml_with_graph_algorithms; pwd;'
+
+## find directory with name (as input) in current directory
+## example: find . -type d -name "abc"
+alias fd='echo "You are looking for folder in current directory. Search in progress... "; find . -type d -name '
+
+alias gct='cd /home/jovyan/eb_ofsn_cc_T_brain_TFS; pwd;'
+
+## regenerate conf.ini file (the .gen_conf.py file is located at home directory)
+alias gen_conf='py ~/.gen_conf.py'
+
+## https://unix.stackexchange.com/questions/4681/how-do-you-sort-du-output-by-size
+alias the_du='du -sh -- * | sort -h'
+
+## remove directory and file
+alias rmrfi='rm -rfi '
+
+## connect rawdata DB by postgresql
+alias dbr='psql -h 10.240.205.111 -d aicloud -p 5432 -U esb20033'
+
+## connect feature DB by postgresql
+alias dbf='psql -h 10.240.205.109 -d feature -p 5432 -U esb20033'
+
+## connect industry DB by postgresql
+alias dbi='psql -h 10.240.205.110 -d industry -p 5432 -U esb20033'
+## select * from pg_tables where schemaname='public'; ## show table in schema: public
+
+## reformat .py file
+alias au8='autopep8 --in-place '
+
+## check import module in python
+alias auf='autoflake --in-place --remove-all-unused-imports --remove-unused-variables '
+
+## 3 steps: autopep8 -> autoflake -> isort
+alias aaa='autopep8 --in-place *.py; autoflake --in-place  --remove-unused-variables *.py;'
+##alias aaa='autopep8 --in-place *.py; autoflake --in-place --remove-all-unused-imports --remove-unused-variables *.py;'
+
+## git related process  
+alias gadd='git add -A '
+alias gbra='git branch -a'
+alias gche='git checkout '
+alias gchp='git checkout -' ## checkout previous branch
+alias gcom='git commit -m '
+alias gac='git commit -a -m '
+alias gaa='git add -A; git commit -a -m "feat: run autopep";'
+alias gdd='git add -A; git commit -a -m "docs: edit README"; ' 
+alias gaap='git add -A; git commit -a -m "feat: run autopep8"; git push '
+alias gdp='git add -A; git commit -a -m "docs: edit README"; git push '
+alias ghp='git add -A; git commit -a -m "refactor: house keeping without adding new func"; git push '
+alias gfp='git add -A; git commit -a -m "fix: fix typo without modifying functionality"; git push ' 
+
+alias gre='git fetch --all; git rebase origin/develop '
+
+
+## add ignore folder/file to .ignore
+## and run git rm -r --cached folder/
+alias grm='git rm -r --cached ' 
+alias gpu='git push '
+alias gsta='git status '
+
+alias juno='jupyter notebook '
+alias py='python '
+alias grep='grep --color=auto'
+
+## back up files
+alias bu='cp ~/da-overall-income/20033/* ~/back_up_zone/back_up_20033/'
+
+## change jupyter theme color
+alias co='jt -t gruvboxd -T'
+alias po='pip install jupyter_contrib_nbextensions;
+jupyter contrib nbextension install --user;
+jupyter-nbextension enable rise --py --sys-prefix;'

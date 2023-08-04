@@ -1,5 +1,6 @@
 echo "Hi. Welcome aboard!"
 ( sudo rm -Rf /var/lib/neo4j/data/databases/* /var/lib/neo4j/data/transactions/* ) && echo "OK" || echo "NOK" 
 ( sudo cp neo4j.conf /etc/neo4j/neo4j.conf ) && echo "OK" || echo "NOK"
-( sudo neo4j console & ) && echo "OK" || echo "NOK"
-echo "You have reset your neo4j.conf setting"
+# ( sudo neo4j console ) && echo "OK" || echo "NOK"
+echo "Status: You have reset your neo4j.conf setting"
+echo "Next step: Run neo4j using sudo neo4j console (use sudo neo4j console & to run at the background)"

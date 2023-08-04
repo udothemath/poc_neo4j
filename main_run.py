@@ -9,7 +9,7 @@ from src.cypher_code import (cypher_clean, cypher_conf)
 from datetime import datetime
 import logging
 from src.generate_csv import FileInfoFromDB, GenCSVfromDB
-from src.cypher_func import cypher_node_code, cypher_property_code
+from src.cypher_func import cypher_node_code, cypher_property_code, cypher_property_code_db
 # pd.set_option('display.max_columns', 9999)
 
 PATH_BOLT = "bolt://localhost:7687"
@@ -118,32 +118,39 @@ if __name__ == "__main__":
     print(f"Check your current directory: {MAIN_PATH}")
     print(f"Check your data directory: {DATA_PATH}")
 
-    # generate data
-    data_row_size = 10_000
+    # ## generate demo data
+    print ("--- generate demo data --- ")
+    data_row_size = 1_000_000
     data_node = FileInfo('demo', data_row_size, 5, file_path=DATA_PATH)
     file_csv_node = create_csv_file(data_node)
 
     data_property = PropertyInfo(
         'property', data_row_size, file_path=DATA_PATH)
     file_csv_property = create_csv_file_property(data_property)
-    print(f"node file: {file_csv_node}")
-    print(f"property file: {file_csv_property}")
+    print(f"demo node file: {file_csv_node}")
+    print(f"demo property file: {file_csv_property}")
 
     RunNeo4jFile(file_csv_node).neo4j_execute_cypher(cypher_node_code)
-    RunNeo4jFile(file_csv_property).neo4j_execute_cypher(cypher_property_code)
+    RunNeo4jFile(file_csv_property).neo4j_execute_cypher(cypher_property_code_db)
+    print ("--- end: generate demo data --- ")
 
 
-    # generate data from feature DB
-    # data_from_db = FileInfoFromDB(table_name="l3_node_person", save_dir=DATA_PATH,
-    #                   save_file_prefix="20230724_v1", size_limit=1_000)
-    # file_csv = create_csv_from_db(data_from_db)
-    # RunNeo4jFile(file_csv).main()
+    # ## generate data from feature DB
 
-    # generate data for property
-    # data_from_db_property = FileInfoFromDB(table_name="l3_node_person", save_dir=DATA_PATH,
-    #                   save_file_prefix="20230724_v1", size_limit=1_000)
-    # file_csv_property = create_csv_from_db(data_from_db_property)
-    # # file_csv = '/home/jovyan/socialnetwork_info_TFS/poc_neo4j/data/20230724_v1_l3_node_person_size10.csv'
-    # RunNeo4jFile(file_csv_property).add_property(file_property=file_csv_property)
+    # NODE_IN_NEO4J = True
+    # PROP_IN_NEO4J = False
+
+    # if not NODE_IN_NEO4J:
+    #     data_from_db = FileInfoFromDB(table_name="all_links", save_dir=DATA_PATH,
+    #                     save_file_prefix="20230725_v1", size_limit=100_000)
+    #     file_csv_node = create_csv_from_db(data_from_db)
+    #     RunNeo4jFile(file_csv_node).neo4j_execute_cypher(cypher_node_code)
+
+    # # ## generate data for property from feature DB
+    # if not PROP_IN_NEO4J:
+    #     data_from_db_property = FileInfoFromDB(table_name="l3_node_person", save_dir=DATA_PATH,
+    #                     save_file_prefix="20230724_v1", size_limit=None)
+    #     file_csv_property = create_csv_from_db(data_from_db_property)
+    #     RunNeo4jFile(file_csv_property).neo4j_execute_cypher(cypher_property_code_db)
 
     print("---done in main---")

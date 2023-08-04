@@ -5,6 +5,7 @@ import time
 import functools
 import logging
 import os
+import traceback
 
 
 def create_logger(log_filename: str, log_folder: str, dir_path: str, turn_on_console=True):
@@ -46,7 +47,7 @@ def log_info(func):
         execution_time = end_time - start_time
         logger = logging.getLogger(__name__)
         logger.info(
-            f"!!!Function '{func.__qualname__}' executed in {execution_time:.4f} seconds.")
+            f"Function '{func.__qualname__}' executed in {execution_time:.4f} seconds.")
         return result
     return wrapper
 
@@ -121,7 +122,7 @@ def create_csv_file_property(property_info):
         os.makedirs(file_path)
         print(f"You have created folder: {file_path}")
     # Define column names
-    fieldnames = ['node_id', 'name', 'gender', 'address']
+    fieldnames = ['node_id', 'name', 'birthdate', 'sex', 'registered_address']
     rand_size = int(num_rows/3)
     paddle_zero_size = int(math.log(num_rows, 10))+1
 
@@ -129,17 +130,13 @@ def create_csv_file_property(property_info):
     rows = []
     for i in range(num_rows):
         rand_value_from = random.randint(1, rand_size)
-
-        # from_info = random.choice([('a', 'account'),
-        #                            ('c', 'company'),
-        #                            ('u', 'user')
-        #                            ])
-        gender_type = random.choice(['M', 'F'])
+        gender_type = random.choice(['女', '男'])
 
         rows.append({'node_id': f'a_{rand_value_from:0{paddle_zero_size}}',
                      'name': f'name_{rand_value_from:0{paddle_zero_size}}',
-                     'gender': gender_type,
-                     'address': f'address_{i:0{paddle_zero_size}}',
+                     'birthdate': f'birthdate_{i:0{paddle_zero_size}}',
+                     'sex': gender_type,
+                     'registered_address': f'address_{i:0{paddle_zero_size}}',
                     })
 
     # Write data to CSV file
