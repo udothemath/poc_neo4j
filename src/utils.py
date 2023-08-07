@@ -5,7 +5,6 @@ import time
 import functools
 import logging
 import os
-import traceback
 
 
 def create_logger(log_filename: str, log_folder: str, dir_path: str, turn_on_console=True):
@@ -69,7 +68,7 @@ def logger_decorator(logger):
 
 
 def create_csv_file(file_info):
-    file_prefix = file_info.file_prefix
+    file_info.file_prefix
     num_rows = file_info.num_rows
     type_size = file_info.type_size
     file_path = file_info.file_path
@@ -78,10 +77,10 @@ def create_csv_file(file_info):
         print(f"You have created folder: {file_path}")
     # Define column names
     fieldnames = ['from', 'to', 'from_type', 'to_type', 'link_type']
-    rand_size = int(num_rows/3)
-    paddle_zero_size = int(math.log(num_rows, 10))+1
+    rand_size = int(num_rows / 3)
+    paddle_zero_size = int(math.log(num_rows, 10)) + 1
 
-    relation_type_list = [f'type_{i:02}' for i in range(1,  type_size+1)]
+    relation_type_list = [f'type_{i:02}' for i in range(1, type_size + 1)]
     # Generate data for each row
     rows = []
     for i in range(num_rows):
@@ -115,7 +114,7 @@ def create_csv_file(file_info):
 
 
 def create_csv_file_property(property_info):
-    file_prefix = property_info.file_prefix
+    property_info.file_prefix
     num_rows = property_info.num_rows
     file_path = property_info.file_path
     if not os.path.exists(file_path):
@@ -123,8 +122,8 @@ def create_csv_file_property(property_info):
         print(f"You have created folder: {file_path}")
     # Define column names
     fieldnames = ['node_id', 'name', 'birthdate', 'sex', 'registered_address']
-    rand_size = int(num_rows/3)
-    paddle_zero_size = int(math.log(num_rows, 10))+1
+    rand_size = int(num_rows / 3)
+    paddle_zero_size = int(math.log(num_rows, 10)) + 1
 
     # Generate data for each row
     rows = []
@@ -137,7 +136,7 @@ def create_csv_file_property(property_info):
                      'birthdate': f'birthdate_{i:0{paddle_zero_size}}',
                      'sex': gender_type,
                      'registered_address': f'address_{i:0{paddle_zero_size}}',
-                    })
+                     })
 
     # Write data to CSV file
     try:

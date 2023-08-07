@@ -31,10 +31,10 @@ class Neo4jConnection:
         return self.query(cypher_info_check)
 
     def _kill_conn(self, list_of_conn_id=['bolt-386', 'bolt-394', 'bolt-384']):
-        cypher_conn_id='CALL dbms.listConnections() YIELD connectionId'
+        cypher_conn_id = 'CALL dbms.listConnections() YIELD connectionId'
         print(self.query(cypher_conn_id))
         # curr_conn_id=self.query()
-        cypher_kill=f'''
+        cypher_kill = f'''
         CALL dbms.killConnections({list_of_conn_id})
         '''
         return self.query(cypher_kill)

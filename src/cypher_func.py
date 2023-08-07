@@ -1,85 +1,81 @@
-from .cypher_code import cypher_clean, cypher_conf
+cypher_clean = '''
+MATCH (n) DETACH DELETE n
+'''
+cypher_conf = '''
+CALL dbms.listConfig()
+YIELD name, value
+WHERE name STARTS WITH 'dbms.default'
+RETURN name, value
+ORDER BY name
+LIMIT 3;
+'''
 
 
-def cypher_property_code_db(the_file:str):
+def cypher_property_code(the_file: str):
     cypher_constraint_node_id = '''
-        CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT (m.node_id) IS UNIQUE
+        CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT (m.id_number) IS UNIQUE
     '''
     cypher_index_node_id = """
         CREATE INDEX node_index_id_number IF NOT EXISTS FOR (n:ID) ON (n.id_number)
     """
 
-    cypher_property1 = f'''
-        USING PERIODIC COMMIT 5000
-        LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
-        MERGE (id:ID {{id_number: row.node_id}} )
-        RETURN count(id);
-    '''
+    # cypher_property1 = f'''
+    #     USING PERIODIC COMMIT 5000
+    #     LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
+    #     MERGE (id:ID {{id_number: row.node_id}} )
+    #     RETURN count(id);
+    # '''
 
-    cypher_property2 = f'''
-        USING PERIODIC COMMIT 5000
-        LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
-        MATCH (id:ID {{id_number: row.node_id}} )
-        SET 
-        id.name=row.name,
-        id.birthdate=row.birthdate,
-        id.sex=row.sex,
-        id.registered_address=row.registered_address
-        RETURN count(id);
-    '''
+    # cypher_property2 = f'''
+    #     USING PERIODIC COMMIT 5000
+    #     LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
+    #     MATCH (id:ID {{id_number: row.node_id}} )
+    #     SET
+    #     id.name=row.name,
+    #     id.birthdate=row.birthdate,
+    #     id.sex=row.sex,
+    #     id.registered_address=row.registered_address
+    #     RETURN count(id);
+    # '''
 
-    cypher_list = [
-        cypher_constraint_node_id,
-        cypher_index_node_id,
-        cypher_property1,
-        cypher_property2
-    ]
-    return cypher_list
-
-
-
-
-def cypher_property_code(the_file:str):
-    cypher_constraint_node_id = '''
-        CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT (m.node_id) IS UNIQUE
-    '''
-    cypher_index_node_id = """
-        CREATE INDEX node_index_name IF NOT EXISTS FOR (n:ID) ON (n.id_number)
+    cypher_apoc_iterate_property_merge = f"""
+        CALL apoc.periodic.iterate(
+        "LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row RETURN row",
+        "MERGE (id:ID {{id_number: row.node_id}} )",
+            {{batchSize: 5000}}
+        )
+        YIELD batch, operations
+        return batch, operations
     """
 
-    cypher_property1 = f'''
-        USING PERIODIC COMMIT 5000
-        LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
-        MERGE (id:ID {{id_number: row.node_id}} )
-        RETURN count(id);
-    '''
-
-    cypher_property2 = f'''
-        USING PERIODIC COMMIT 5000
-        LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row
-        MATCH (id:ID {{id_number: row.node_id}} )
-        SET 
-        id.gender=row.gender,
-        id.address=row.address
-        RETURN count(id);
-    '''
+    cypher_apoc_iterate_property_set = f"""
+        CALL apoc.periodic.iterate(
+        "LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row MATCH (id:ID {{id_number: row.node_id}} ) RETURN id,row",
+        "SET id.sex=row.sex, id.registered_address=row.registered_address",
+            {{batchSize: 5000}}
+        )
+        YIELD batch, operations
+        return batch, operations
+    """
 
     cypher_list = [
         cypher_constraint_node_id,
         cypher_index_node_id,
-        cypher_property1,
-        cypher_property2
+        # cypher_property1,
+        # cypher_property2
+        cypher_apoc_iterate_property_merge,
+        cypher_apoc_iterate_property_set
     ]
     return cypher_list
 
 
-def cypher_node_code(the_file:str):
+def cypher_node_code(the_file: str):
 
     cypher_constraint_id_from_to = '''
-        CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT (m.from, m.to) IS UNIQUE
+        CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT m.id_number IS UNIQUE
     '''
     cypher_index1 = """
-    create index IF NOT EXISTS for (n:ID) on (n.id_number,n.type);
+    create index IF NOT EXISTS for (n:ID) on n.id_number;
     """
     cypher_index2 = """
     create index IF NOT EXISTS for ()-[r:Relation]-() on (r.name,r.type);
@@ -133,15 +129,15 @@ def cypher_node_code(the_file:str):
         RETURN count(input)
     '''
 
-    cypher_label_mark = """
-        CALL apoc.periodic.iterate(
-        "MATCH (p:ID) RETURN p",
-        "SET p:ID",
-        {batchSize: 5000}
-        )
-        YIELD batch, operations
-        return batch,operations
-    """
+    # cypher_label_mark = """
+    #     CALL apoc.periodic.iterate(
+    #     "MATCH (p:ID) RETURN p",
+    #     "SET p:ID",
+    #     {batchSize: 5000}
+    #     )
+    #     YIELD batch, operations
+    #     return batch,operations
+    # """
 
     cypher_node_list = [
         cypher_conf,
