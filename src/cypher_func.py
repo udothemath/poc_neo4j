@@ -69,7 +69,10 @@ def cypher_property_code(the_file: str):
     return cypher_list
 
 
-def cypher_node_code(the_file: str):
+def cypher_node_code(the_file: str) -> list:
+    """
+
+    """
 
     cypher_constraint_id_from_to = '''
         CREATE CONSTRAINT IF NOT EXISTS ON (m:ID) ASSERT m.id_number IS UNIQUE
@@ -78,7 +81,7 @@ def cypher_node_code(the_file: str):
     create index IF NOT EXISTS for (n:ID) on n.id_number;
     """
     cypher_index2 = """
-    create index IF NOT EXISTS for ()-[r:Relation]-() on (r.name,r.type);
+    create index IF NOT EXISTS for ()-[r:Relation]-() on (r.type);
     """
     cypher_count = f'''
         LOAD CSV WITH HEADERS FROM 'file:///{the_file}' AS row

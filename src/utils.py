@@ -67,8 +67,7 @@ def logger_decorator(logger):
     return decorator
 
 
-def create_csv_file(file_info):
-    file_info.file_prefix
+def create_csv_file_node(file_info):
     num_rows = file_info.num_rows
     type_size = file_info.type_size
     file_path = file_info.file_path

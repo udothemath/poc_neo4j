@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import os
+import logging
 
 
 @dataclass
@@ -34,6 +35,29 @@ class GenCSVfromDB:
         self._sq = SQLTools(proj_name=self._proj_name,
                             logger=self._logger, run_by_airflow=False)
 
+
+    def filename_with_path(self):
+        """
+        Create csv file and save to desired directory
+        Args:
+            table_info (file_info_fromDB: dataclass): table info
+            logger (str): Logging
+        Returns:
+            file with path (str)
+        """
+        file_with_path = self._file_info.get_path
+        if os.path.isfile(file_with_path):
+            print(f"u already have file: {file_with_path}")
+        else:
+            print("file doesn't exists. Creating file...")
+            try:
+                self.create_csv_from_df()
+                print(f"file is ready. {file_with_path}")
+            except:
+                raise ValueError("Cannot generate csv from DB")
+        return file_with_path
+
+
     def get_db_df(self):
         '''
             get dataframe from db
@@ -41,9 +65,6 @@ class GenCSVfromDB:
         select_sql = f'''
         SELECT *
         FROM {self._proj_name}.{self._file_info.table_name}
-        -- WHERE from_type = 'person'
-        -- AND to_type = 'person'
-        -- AND link_type NOT IN ('has_grandparents_in_law', 'has_maternal_grandparents', 'has_parents_in_law', 'has_paternal_grandparents')
         '''
         if self._file_info.size_limit:
             size_limit = self._file_info.size_limit
@@ -55,8 +76,9 @@ class GenCSVfromDB:
                 output_type='pandas'
             )
             return result
-        except:
-            raise ValueError("Cannot access db")
+        except BaseException as e:
+            logger.info('[error] Cannot access db', exc_info=True)
+            raise e
 
     def create_csv_from_df(self):
         '''
